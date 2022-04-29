@@ -55,7 +55,6 @@ void free_tree(pnode node) {
     free_tree(node->jos_dreapta);
     free_tree(node->jos_stanga);
      
-    // printf(" ADRESA %p in free\n", node);
     free(node);
 }
 
@@ -64,8 +63,8 @@ void print_tree(pnode node) {
     if (node == NULL)
         return;
  
-    printf("|%u %u %u| type : %d ", node->red, node->green, node->blue, node->type);
-    printf("Indicii : %d %d %d %d ", node->one, node->two, node->three, node->four);
+    printf("|%u %u %u|", node->red, node->green, node->blue);
+    // printf("Indicii : %d %d %d %d ", node->one, node->two, node->three, node->four);
     printf("Area %d \n", node->area);
  
  
@@ -73,8 +72,6 @@ void print_tree(pnode node) {
     print_tree(node->sus_dreapta);
     print_tree(node->jos_dreapta);
     print_tree(node->jos_stanga);
-
-
 }
 
 uint64_t medie(pixel **submatrix, int X, int Y, unsigned int size, int type) {
@@ -121,25 +118,11 @@ void process(pixel **matrix, unsigned int size, int X, int Y, int prag, pnode ro
      blue = medie(matrix,X,Y,size,2);
      uint64_t mean = 0;
 
-    //  printf("%"PRIu64" %"PRIu64" %"PRIu64"\n", red, green, blue);
-     
-
      root->red = red;
      root->blue = blue;
      root->green = green;
      root->type = 2 ;
      root->area = size * size;
-    //  root->sus_stanga = malloc(sizeof(nod));
-    //  printf(" ****ADRESA 1 %p \n", root->sus_stanga);
-    //  root->sus_dreapta = malloc(sizeof(nod));
-    //  printf(" ****ADRESA 2 %p \n", root->sus_dreapta);
-    //  root->jos_dreapta = malloc(sizeof(nod));
-    //  printf(" ****ADRESA 3 %p \n", root->jos_dreapta);
-    //  root->jos_stanga = malloc(sizeof(nod));
-    //  printf(" ****ADRESA 4 %p \n", root->jos_stanga);
-     
-    //  printf("pixel : ");
-    //  printf("|%u %u %u|\n", red, green, blue);
 
      for(int i = X ; i < X + size ; i++)
       for(int j = Y ; j < Y + size ; j++)
@@ -151,26 +134,24 @@ void process(pixel **matrix, unsigned int size, int X, int Y, int prag, pnode ro
      
      if( mean > prag ) {
      root->sus_stanga = malloc(sizeof(nod));
-    //  printf(" ****ADRESA 1 %p \n", root->sus_stanga);
      root->sus_dreapta = malloc(sizeof(nod));
-    //  printf(" ****ADRESA 2 %p \n", root->sus_dreapta);
      root->jos_dreapta = malloc(sizeof(nod));
-    //  printf(" ****ADRESA 3 %p \n", root->jos_dreapta);
      root->jos_stanga = malloc(sizeof(nod));
-    //  printf(" ****ADRESA 4 %p \n", root->jos_stanga);
+     
      indice++;
+
      root->one = indice;
      process(matrix, size/2 , X + 0 , Y + 0  , prag, root->sus_stanga);
-    //  indice++;
+
      root->two = indice;
      process(matrix, size/2 , X + 0 , Y + size/2 , prag, root->sus_dreapta);
-    //  indice++;
+
      root->three = indice;
      process(matrix, size/2 , X + size/2 , Y + size/2 , prag, root->jos_dreapta);
-    //  indice++;
+
      root->four = indice;
      process(matrix, size/2 , X + size/2 , Y + 0 , prag, root->jos_stanga);
-    //  indice++;
+
      }
      else
      { root->red = red;
@@ -181,16 +162,14 @@ void process(pixel **matrix, unsigned int size, int X, int Y, int prag, pnode ro
        root->two = -1;
        root->three = -1;
        root->four = -1;
-    //    printf("!!!!!!! ADRESA %p \n", root);
+
        root->sus_stanga = NULL;
        root->sus_dreapta = NULL;
        root->jos_dreapta = NULL;
        root->jos_stanga = NULL;
+
        indice++;
      }
-
-     
-
 
 }
 
@@ -221,8 +200,6 @@ void save_data(pnode arbore, QuadtreeNode *vector) {
      vector[counter].top_right = arbore->two;
      vector[counter].bottom_right = arbore->three;
      vector[counter].bottom_left = arbore->four;
-
-
 
      counter++;
      
@@ -258,29 +235,62 @@ void number_leaf(pnode arbore, uint32_t *leaf) {
 
 }
 
+void vertical(pnode arbore) {
+    if(arbore == NULL)
+    return;
+
+    pnode aux = arbore->sus_stanga;
+    arbore->sus_stanga = arbore->jos_stanga;
+    arbore->jos_stanga = aux;
+    aux = arbore->sus_dreapta;
+    arbore->sus_dreapta = arbore->jos_dreapta;
+    arbore->jos_dreapta = aux;
+
+    vertical(arbore->sus_stanga);
+    vertical(arbore->sus_dreapta);
+    vertical(arbore->jos_dreapta);
+    vertical(arbore->jos_stanga);
+
+}
+
+void orizontal(pnode arbore) {
+     if(arbore == NULL)
+     return;
+
+    pnode aux = arbore->sus_stanga;
+    arbore->sus_stanga = arbore->jos_stanga;
+    arbore->jos_stanga = aux;
+    aux = arbore->sus_dreapta;
+    arbore->sus_dreapta = arbore->jos_dreapta;
+    arbore->jos_dreapta = aux;
+
+    orizontal(arbore->sus_stanga);
+    orizontal(arbore->sus_dreapta);
+    orizontal(arbore->jos_dreapta);
+    orizontal(arbore->jos_stanga);
+
+
+
+}
+
+
 int main()
-{   FILE *input = fopen("Exemple/test0.ppm", "rb");
+{   FILE *input = fopen("Exemple/test1.ppm", "rb");
     printf(input == NULL ? "Fisier negasit\n" : "Fisier gasit\n");
     
     unsigned dim1,dim2,max;
     char type[10];
     fscanf(input, "%s%d%d%d", type, &dim1, &dim2, &max);
-    printf("%s%d%d%d", type, dim1, dim2, max);
+    printf("%s\n%d %d\n%d\n", type, dim1, dim2, max);
 
     char newline;
 	fread(&newline,sizeof(char),1,input);
 
-
-    // char buffer[256];
-    // fread(buffer, sizeof(char), 15, input);
-    
-    // buffer[15] = '\0';
-    // printf("buffer:%s \n", buffer);
     
     // modificare
     unsigned int lungime, latime;
-    lungime = 256;
-    latime = 256;
+    lungime = dim1;
+    latime = dim2;
      
     // alocare dinamica matrice
     pixel **matrix = (pixel **)malloc(lungime * sizeof(pixel *));
@@ -307,7 +317,10 @@ int main()
     // cerinta 1
     int prag = 0;
     process(matrix, lungime, 0, 0, prag, root);
+    print_tree(root);
+    // vertical(root); 
     // print_tree(root);
+
     
     uint32_t numar_noduri = 0 ;
     uint32_t leaf = 0 ;
@@ -316,7 +329,7 @@ int main()
     printf(" NUMAR NODURI = %d\n", numar_noduri);
     QuadtreeNode *vector = (QuadtreeNode *)malloc(numar_noduri * sizeof(QuadtreeNode));
     save_data(root,vector);
-    print_vector(vector,numar_noduri);
+    // print_vector(vector,numar_noduri);
 
     FILE *output = fopen("output", "wb");
 
