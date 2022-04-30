@@ -536,9 +536,5 @@ int main(int argc, char **argv)
         free_tree(root);
     }
 
-    
-
-
-
     return 0;
 }
