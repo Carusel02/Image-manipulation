@@ -254,6 +254,7 @@ void vertical(pnode arbore) {
 }
 
 void orizontal(pnode arbore) {
+     // TREBUIE MODIFICAT
      if(arbore == NULL)
      return;
 
@@ -274,94 +275,51 @@ void orizontal(pnode arbore) {
 }
 
 
-int main()
-{   FILE *input = fopen("Exemple/test1.ppm", "rb");
-    printf(input == NULL ? "Fisier negasit\n" : "Fisier gasit\n");
-    
-    unsigned dim1,dim2,max;
-    char type[10];
-    fscanf(input, "%s%d%d%d", type, &dim1, &dim2, &max);
-    printf("%s\n%d %d\n%d\n", type, dim1, dim2, max);
 
-    char newline;
-	fread(&newline,sizeof(char),1,input);
+int main(int argc, char **argv)
+{   
+    FILE *input = fopen("Exemple/compress0_0.out", "rb");
+    uint32_t nr_frunze;
+    uint32_t nr_noduri;
 
-    
-    // modificare
-    unsigned int lungime, latime;
-    lungime = dim1;
-    latime = dim2;
-     
-    // alocare dinamica matrice
-    pixel **matrix = (pixel **)malloc(lungime * sizeof(pixel *));
-    for(int i = 0 ; i < lungime ; i++) {
-        matrix[i] = (pixel *)malloc(latime * sizeof(pixel));
-    }
-    
-    // citire matrice de pixeli
-     for (int i = 0; i < lungime; i++)
-        for (int j = 0; j < latime; j++)
-            { fread(&matrix[i][j].red, sizeof(unsigned char), 1, input);
-              fread(&matrix[i][j].green, sizeof(unsigned char), 1, input);
-              fread(&matrix[i][j].blue, sizeof(unsigned char), 1, input);
-            }
-    
-
-    pnode root = malloc(sizeof(nod));
-    // printf(" ADRESS %p in main \n", root);
-    root->sus_stanga = NULL;
-    root->sus_dreapta = NULL;
-    root->jos_dreapta = NULL;
-    root->jos_stanga = NULL;
-    
-    // cerinta 1
-    int prag = 0;
-    process(matrix, lungime, 0, 0, prag, root);
-    print_tree(root);
-    // vertical(root); 
-    // print_tree(root);
-
-    
-    uint32_t numar_noduri = 0 ;
-    uint32_t leaf = 0 ;
-    node_number(root,&numar_noduri);
-    number_leaf(root,&leaf);
-    printf(" NUMAR NODURI = %d\n", numar_noduri);
-    QuadtreeNode *vector = (QuadtreeNode *)malloc(numar_noduri * sizeof(QuadtreeNode));
-    save_data(root,vector);
-    // print_vector(vector,numar_noduri);
-
-    FILE *output = fopen("output", "wb");
-
-    fwrite(&leaf, sizeof(uint32_t), 1, output);
-    fwrite(&numar_noduri, sizeof(uint32_t), 1, output);
-    fwrite(vector, sizeof(QuadtreeNode), numar_noduri, output);
-
-    
-    printf("LEAF : %d \n", leaf);
-
-
-    
-    
-    
-    fclose(output);
-    free_tree(root);
-
-    //  for (int i = 0; i < lungime; i++) {
-    //     for (int j = 0; j < latime; j++)
-    //         printf("|%u %u %u| ", matrix[i][j].red , matrix[i][j].green, matrix[i][j].blue);
+    for(int i = 1 ; i < argc ; i++) {
+        if(strcmp(argv[i], "-d") == 0) {
         
-    //     printf("\n");
-    //    }
+        
+        fread(&nr_frunze, sizeof(uint32_t), 1, input);
+        fread(&nr_noduri, sizeof(uint32_t), 1, input);
 
-    
+        printf("%"PRIu32" %"PRIu32" \n", nr_frunze, nr_noduri);
+
+        QuadtreeNode *vector = (QuadtreeNode *)malloc(nr_noduri * sizeof(QuadtreeNode));
+
+        fread(vector, sizeof(QuadtreeNode), nr_noduri, input);
+
+        // for(int i = 0 ; i < nr_noduri ; i++) {
+        // //   fread(&vector[i].blue, sizeof(int8_t), 1, input);
+        // //   fread(&vector[i].green, sizeof(int8_t), 1, input);
+        // //   fread(&vector[i].red, sizeof(int8_t), 1, input);
+        // //   fread(&vector[i].area, sizeof(uint32_t), 1, input);
+        // //   fread(&vector[i].top_left, sizeof(int32_t), 1, input);
+        // //   fread(&vector[i].top_right, sizeof(int32_t), 1, input);
+        // //   fread(&vector[i].bottom_left, sizeof(int32_t), 1, input);
+        // //   fread(&vector[i].bottom_right, sizeof(int32_t), 1, input);
+        //      fread(&vector[i], sizeof(QuadtreeNode), 1, input);
+
+        // }
+       
+        print_vector(vector, nr_noduri);
+
+ 
+ 
 
 
-    for (int i = 0; i < lungime; i++)
-        free(matrix[i]);
-    free(matrix);
-    
-    free(vector);
-    fclose(input);
+
+        }
+
+    }
+
+
+
     return 0;
 }
