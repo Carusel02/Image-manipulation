@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -g -std=c11 -lm
-
+# quadtree source code
 all: build
 
 build: quadtree
