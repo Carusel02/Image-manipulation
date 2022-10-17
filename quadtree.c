@@ -29,24 +29,6 @@ typedef struct node {
    struct node *jos_dreapta;
 } nod, *pnode;
 
-// void init(pnode node) {
-//     node->sus_stanga = malloc(sizeof(node));
-//     node->sus_dreapta = malloc(sizeof(node));
-//     node->jos_dreapta = malloc(sizeof(node));
-//     node->jos_stanga = malloc(sizeof(node));
-// }
-
-// void add(pnode node, unsigned int red, unsigned int green, unsigned int blue) {
-//     node = (pnode)malloc(sizeof(nod));
-//     node->red = red ;
-//     node->green = green ;
-//     node->blue = blue;
-//     node->sus_stanga = NULL;
-//     node->sus_dreapta = NULL;
-//     node->jos_dreapta = NULL;
-//     node->jos_stanga = NULL;
-// }
-
 void free_tree(pnode node) {
     if(node == NULL)
        return;
